@@ -1,40 +1,39 @@
-from functions.get_files_info import get_files_info
-
+from functions.get_file_content import get_file_content
 
 def main():
-    """Test the get_files_info function with various scenarios."""
+    """Test the get_file_content function with various scenarios."""
     
-    print("Testing get_files_info function...")
+    print("Testing get_file_content function...")
     print("=" * 60)
     
-    # Test 1: List contents of calculator directory
-    print("Test 1: get_files_info('calculator', '.')")
-    print("Result for current directory:")
-    result1 = get_files_info("calculator", ".")
-    print(result1)
+    print("Test 1: get_file_content('calculator', 'lorem.txt')")
+    print("Testing truncation with large file:")
+    result1 = get_file_content("calculator", "lorem.txt")
+    print(f"Content length: {len(result1)} characters")
+    if len(result1) > 10000:
+        print("✓ File was truncated as expected")
+        print("Last 100 characters:", result1[-100:])
+    else:
+        print("✗ File was not truncated")
     print()
     
-    # Test 2: List contents of calculator/pkg directory
-    print("Test 2: get_files_info('calculator', 'pkg')")
-    print("Result for 'pkg' directory:")
-    result2 = get_files_info("calculator", "pkg")
+    print("Test 2: get_file_content('calculator', 'main.py')")
+    print("Result for main.py:")
+    result2 = get_file_content("calculator", "main.py")
     print(result2)
     print()
     
-    # Test 3: Try to access /bin directory (should fail)
-    print("Test 3: get_files_info('calculator', '/bin')")
-    print("Result for '/bin' directory:")
-    result3 = get_files_info("calculator", "/bin")
-    print("    " + result3)
+    print("Test 3: get_file_content('calculator', 'pkg/calculator.py')")
+    print("Result for pkg/calculator.py:")
+    result3 = get_file_content("calculator", "pkg/calculator.py")
+    print(result3)
     print()
     
-    # Test 4: Try to access parent directory (should fail)
-    print("Test 4: get_files_info('calculator', '../')")
-    print("Result for '../' directory:")
-    result4 = get_files_info("calculator", "../")
+    print("Test 4: get_file_content('calculator', '/bin/cat')")
+    print("Result for '/bin/cat' (should be error):")
+    result4 = get_file_content("calculator", "/bin/cat")
     print("    " + result4)
     print()
-
 
 if __name__ == "__main__":
     main() 
