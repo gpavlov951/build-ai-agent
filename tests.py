@@ -1,38 +1,24 @@
-from functions.get_file_content import get_file_content
+from functions.write_file import write_file
 
 def main():
-    """Test the get_file_content function with various scenarios."""
+    """Test the write_file function with various scenarios."""
     
-    print("Testing get_file_content function...")
+    print("Testing write_file function...")
     print("=" * 60)
     
-    print("Test 1: get_file_content('calculator', 'lorem.txt')")
-    print("Testing truncation with large file:")
-    result1 = get_file_content("calculator", "lorem.txt")
-    print(f"Content length: {len(result1)} characters")
-    if len(result1) > 10000:
-        print("✓ File was truncated as expected")
-        print("Last 100 characters:", result1[-100:])
-    else:
-        print("✗ File was not truncated")
+    print("Test 1: write_file('calculator', 'lorem.txt', 'wait, this isn't lorem ipsum')")
+    result1 = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+    print(result1)
     print()
     
-    print("Test 2: get_file_content('calculator', 'main.py')")
-    print("Result for main.py:")
-    result2 = get_file_content("calculator", "main.py")
+    print("Test 2: write_file('calculator', 'pkg/morelorem.txt', 'lorem ipsum dolor sit amet')")
+    result2 = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
     print(result2)
     print()
     
-    print("Test 3: get_file_content('calculator', 'pkg/calculator.py')")
-    print("Result for pkg/calculator.py:")
-    result3 = get_file_content("calculator", "pkg/calculator.py")
+    print("Test 3: write_file('calculator', '/tmp/temp.txt', 'this should not be allowed')")
+    result3 = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
     print(result3)
-    print()
-    
-    print("Test 4: get_file_content('calculator', '/bin/cat')")
-    print("Result for '/bin/cat' (should be error):")
-    result4 = get_file_content("calculator", "/bin/cat")
-    print("    " + result4)
     print()
 
 if __name__ == "__main__":
