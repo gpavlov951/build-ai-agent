@@ -35,36 +35,55 @@ def main():
 
 
 def generate_content(client, messages, verbose):
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
-    if verbose:
-        print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-        print("Response tokens:", response.usage_metadata.candidates_token_count)
-
-    if not response.function_calls:
-        return response.text
-
-    for function_call_part in response.function_calls:
-        function_call_result = call_function(function_call_part, verbose)
+    max_iterations = 20
+    iteration = 0
+    
+    while iteration < max_iterations:
+        iteration += 1
         
-        # Check if the function call result has the expected structure
-        if not hasattr(function_call_result, 'parts') or not function_call_result.parts:
-            raise Exception("Function call result does not have expected structure")
-        
-        if not hasattr(function_call_result.parts[0], 'function_response'):
-            raise Exception("Function call result does not have function_response")
-        
-        if not hasattr(function_call_result.parts[0].function_response, 'response'):
-            raise Exception("Function call result does not have response")
-        
-        # If verbose, print the result
         if verbose:
-            print(f"-> {function_call_result.parts[0].function_response.response}")
+            print(f"Iteration {iteration}/{max_iterations}")
+        
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-001",
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions], system_instruction=system_prompt
+            ),
+        )
+        
+        if verbose:
+            print("Prompt tokens:", response.usage_metadata.prompt_token_count)
+            print("Response tokens:", response.usage_metadata.candidates_token_count)
+        
+        function_was_called = False
+        
+        if hasattr(response, 'candidates') and response.candidates:
+            for candidate in response.candidates:
+                if hasattr(candidate, 'content'):
+                    messages.append(candidate.content)
+                    
+                    if hasattr(candidate.content, 'parts'):
+                        for part in candidate.content.parts:
+                            if hasattr(part, 'function_call'):
+                                function_was_called = True
+                                
+                                function_call_result = call_function(part.function_call, verbose)
+                                messages.append(function_call_result)
+        
+        if not function_was_called:
+            if hasattr(response, 'text') and response.text:
+                print("Final response:")
+                print(response.text)
+            else:
+                print("Final response: No text response available")
+            break
+    
+    if iteration >= max_iterations:
+        print(f"Reached maximum iterations ({max_iterations})")
+        if hasattr(response, 'text') and response.text:
+            print("Final response:")
+            print(response.text)
 
 
 if __name__ == "__main__":
